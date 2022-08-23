@@ -50,11 +50,11 @@ def cut_length(df, num_words):
     return pd.concat(list_df)   
 
 
-def train_val_split_doc(X_train):
+def train_val_split_doc(X_train, args):
     # 訓練データのid一覧
     ids = list(sorted(X_train["name"].unique()))
     # シャッフル
-    random.seed(1478754)
+    random.seed(args.seed)
     random.shuffle(ids)
     # 分割
     train_ids, val_ids = ids[:int(len(ids) * 0.8)], ids[int(len(ids) * 0.8):]
@@ -629,3 +629,17 @@ def load_data_for_re(args):
     for i in range(0, 5, 1):
         list_df.append(pd.read_csv("./results/{0}/{1}/NER/{2}.csv".format(args.task, args.bert_type, i)))
     return pd.concat(list_df) 
+
+
+def get_weight(rel2idx, device, args):
+    if args.re_weight == 1:
+        return None
+    else:
+        weights = torch.FloatTensor([1 for i in range(0, len(rel2idx), 1)])
+        for k, v in rel2idx.items():
+            if k != "None" and k != "PAD":
+                weights[v] = args.re_weight
+            else:
+                weights[v] = 1
+        weights = weights.to(device)
+        return weights

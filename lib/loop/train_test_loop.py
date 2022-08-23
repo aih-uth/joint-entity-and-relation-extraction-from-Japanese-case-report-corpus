@@ -12,7 +12,7 @@ from lib.models import BERT_TF, compute_re_loss, compute_ner_loss, compute_loss
 from lib.util import create_df, create_output_df, evaluate_rel, evaluate_ner, simple_evaluate_re, result2df, evaluate_rel_v2
 from tqdm import tqdm
 import transformers
-from lib.util import eval_ner_strict, decode_ner_pipeline, result2df_for_ner
+from lib.util import eval_ner_strict, decode_ner_pipeline, result2df_for_ner, get_weight
 
 
 def batch_processing(model, sentence, tag, batch_re, device, train_is, hyper):
@@ -36,7 +36,7 @@ def train_val_loop(train_vecs, ner_train_labels, re_train_gold_labels,
                    X_val, val_vecs, ner_val_labels, re_val_gold_labels, 
                    tag2idx, rel2idx, fold, 
                    args, device, logger):
-    # 以下で訓練るーぷ
+    # 訓練
     best_val_F =  -1e5
     # モデルを定義
     model = BERT_TF(args, tag2idx, rel2idx, device).to(device)
@@ -59,17 +59,7 @@ def train_val_loop(train_vecs, ner_train_labels, re_train_gold_labels,
         param.requires_grad = True
     model = torch.nn.DataParallel(model)
 
-    # 損失の重み
-    weights = torch.FloatTensor([1 for i in range(0, len(rel2idx), 1)])
-    for k, v in rel2idx.items():
-        if k != "None" and k != "PAD":
-            weights[v] = args.re_weight
-        else:
-            weights[v] = 1
-    weights = weights.to(device)
-    
-    if args.re_weight == 1:
-        weights = None
+    weights = get_weight(rel2idx, device, args)
 
     loss_dct = {"epoch": [], "train_NER_loss": [], "train_RE_loss": [], "val_NER_loss": [], "val_RE_loss": []}
     
@@ -115,7 +105,6 @@ def train_val_loop(train_vecs, ner_train_labels, re_train_gold_labels,
             # 合計の損失
             ner_running_loss += ner_loss.item()
             re_running_loss += re_loss.item()
-        # カキコ
         logger.info("訓練")
         logger.info("{0}エポック目のNERの損失値: {1}".format(epoch, ner_running_loss))
         logger.info("{0}エポック目のREの損失値: {1}\n".format(epoch, re_running_loss))
@@ -153,7 +142,6 @@ def train_val_loop(train_vecs, ner_train_labels, re_train_gold_labels,
                 # 合計の損失
                 val_ner_running_loss += ner_loss.item()
                 val_re_running_loss += re_loss.item()
-
         # 評価（NER）
         ner_preds_decode = decode_ner_pipeline(model, ner_val_labels, ner_preds, tag2idx, val_vecs)
         res_df = result2df_for_ner(X_val, ner_preds_decode)
@@ -162,10 +150,8 @@ def train_val_loop(train_vecs, ner_train_labels, re_train_gold_labels,
         # 評価（RE: 簡易）
         rel_res = simple_evaluate_re(re_val_gold_labels, re_preds, rel2idx)
         rel_val_f1 = rel_res["micro avg"]["f1-score"]
-
         # 平均値
         val_F = 0.5 * ner_val_F + 0.5 * rel_val_f1
-
         # 保存
         logger.info("検証")
         logger.info("{0}エポック目のNERの損失値: {1}".format(epoch, val_ner_running_loss))

@@ -8,8 +8,8 @@ import torch.utils.data
 import torch.optim as optim
 import torch.nn.functional as F
 from torch.nn.utils.rnn import pad_sequence
-from lib.models import BERT_TF_REL, compute_re_loss_pipeline
-from lib.util import simple_evaluate_re, result2df_for_re, evaluate_rel_v2
+from lib.models import BERT_TF_REL, compute_re_loss_pipeline, compute_re_loss
+from lib.util import simple_evaluate_re, result2df_for_re, evaluate_rel_v2, get_weight
 from tqdm import tqdm
 import transformers
 
@@ -29,7 +29,7 @@ def batch_processing(model, sentence, tag, batch_re, device, weights):
 def train_val_loop_re(train_vecs, ner_train_labels, re_train_gold_labels, 
                       X_val, val_vecs, ner_val_labels, re_val_gold_labels, 
                       tag2idx, rel2idx, fold, args, device, logger):
-    # 以下で訓練るーぷ
+    # 訓練
     best_val_F =  -1e5
     # モデルを定義
     model = BERT_TF_REL(args, tag2idx, rel2idx, device).to(device)
@@ -40,25 +40,13 @@ def train_val_loop_re(train_vecs, ner_train_labels, re_train_gold_labels,
                             {'params': model.rel_classifier.parameters(), 'lr': 1e-3, 'weight_decay': 0.01}],
                             eps=1e-03)
     # Total number of training steps is [number of batches] x [number of epochs]. 
-    # (Note that this is not the same as the number of training samples).
-    # num_warmup_steps = 0 -> Default value in run_glue.py
-    # https://www.pdfprof.com/PDF_Image.php?idt=76193&t=28 -> warmup_stepsは学習率を上げていくSTEP? グラフで言う右上がりの箇所
     warmup_steps = int(args.max_epoch * len(train_vecs) * 0.1 / args.batch_size)
     scheduler = transformers.get_linear_schedule_with_warmup(optimizer, 
                                                              num_warmup_steps=warmup_steps, 
                                                              num_training_steps=(len(train_vecs)/args.batch_size)*args.max_epoch)
 
     # 損失の重み
-    weights = torch.FloatTensor([1 for i in range(0, len(rel2idx), 1)])
-    for k, v in rel2idx.items():
-        if k != "None" and k != "PAD":
-            weights[v] = args.re_weight
-        else:
-            weights[v] = 1
-    weights = weights.to(device)
-
-    if args.re_weight == 1:
-        weights = None
+    weights = get_weight(rel2idx, device, args)
 
     loss_dct = {"epoch": [], "train_RE_loss": [], "val_RE_loss": []}
 
@@ -93,10 +81,14 @@ def train_val_loop_re(train_vecs, ner_train_labels, re_train_gold_labels,
             sentence = [torch.tensor(x) for x in batch_X]
             tag = [torch.tensor(x) for x in batch_ner]
             # PADDING
-            # sentence = pad_sequence(sentence, padding_value=0, batch_first=True).to(device)
-            # tag = pad_sequence(tag, padding_value=0, batch_first=True).to(device)
+            sentence = pad_sequence(sentence, padding_value=0, batch_first=True).to(device)
+            tag = pad_sequence(tag, padding_value=0, batch_first=True).to(device)
+
             # 予測
-            rel_logits, rel_loss = batch_processing(model, sentence, tag, batch_re, device)
+            # rel_logits, rel_loss = batch_processing(model, sentence, tag, batch_re, device, weights)
+
+            rel_logit = model(sentence, tag)
+            rel_loss = compute_re_loss(rel_logit, batch_re, device, weights)
             # 誤差伝搬
             rel_loss.backward()
             # 勾配を更新
@@ -104,9 +96,9 @@ def train_val_loop_re(train_vecs, ner_train_labels, re_train_gold_labels,
             scheduler.step()
             # 合計の損失
             re_running_loss += rel_loss.item()
-        # カキコ
         logger.info("訓練")
         logger.info("{0}エポック目のREの損失値: {1}\n".format(epoch, re_running_loss))
+        
         # 検証
         re_preds = []
         with torch.inference_mode():
@@ -130,14 +122,23 @@ def train_val_loop_re(train_vecs, ner_train_labels, re_train_gold_labels,
                 sentence = [torch.tensor(x) for x in batch_X]
                 tag = [torch.tensor(x) for x in batch_ner]
                 # PADDING
-                #sentence = pad_sequence(sentence, padding_value=0, batch_first=True).to(device)
-                #tag = pad_sequence(tag, padding_value=0, batch_first=True).to(device)
+                sentence = pad_sequence(sentence, padding_value=0, batch_first=True).to(device)
+                tag = pad_sequence(tag, padding_value=0, batch_first=True).to(device)
+
                 # 予測
-                rel_logits, rel_loss = batch_processing(model, sentence, tag, batch_re, device)
-                re_preds.extend(rel_logits)
+                #rel_logits, rel_loss = batch_processing(model, sentence, tag, batch_re, device)
+                #re_preds.extend(rel_logits)
+
+                rel_logit = model(sentence, tag)
+                rel_loss = compute_re_loss(rel_logit, batch_re, device, weights)
+                re_preds.append(rel_logit)
+
                 # 合計の損失
                 val_re_running_loss += rel_loss.item()
+
         rel_res = simple_evaluate_re(re_val_gold_labels, re_preds, rel2idx)
+
+
         # 平均値
         val_F = rel_res["micro avg"]["f1-score"]
         # 保存
@@ -190,11 +191,16 @@ def test_loop_re(X_test, test_vecs, ner_test_labels, re_test_gold_labels,
             sentence = [torch.tensor(x) for x in batch_X]
             tag = [torch.tensor(x) for x in batch_ner]
             # PADDING
-            #sentence = pad_sequence(sentence, padding_value=0, batch_first=True).to(device)
-            #tag = pad_sequence(tag, padding_value=0, batch_first=True).to(device)
+            sentence = pad_sequence(sentence, padding_value=0, batch_first=True).to(device)
+            tag = pad_sequence(tag, padding_value=0, batch_first=True).to(device)
+
             # 予測
-            rel_logits, _  = batch_processing(model, sentence, tag, batch_re, device)
-            re_preds.extend(rel_logits)
+            #rel_logits, _  = batch_processing(model, sentence, tag, batch_re, device)
+            #re_preds.extend(rel_logits)
+
+            rel_logit = model(sentence, tag)
+            re_preds.append(rel_logit)
+
     # 新しい評価方法
     res_df = result2df_for_re(X_test, re_preds, rel2idx, tag2idx)
     return res_df

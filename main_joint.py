@@ -30,7 +30,7 @@ def main():
         # トーカナイザー
         bert_tokenizer = load_tokenizer(args)
         # 検証
-        X_train, X_val = train_val_split_doc(X_train)
+        X_train, X_val = train_val_split_doc(X_train, args)
         # ベクトル
         tag2idx, rel2idx = make_idx(pd.concat([X_train, X_val, X_test]), args)
         # 訓練ベクトルを作成
@@ -51,13 +51,10 @@ def main():
                        args, device, logger)
         # テスト
         res_df = test_loop(X_test, test_vecs, ner_test_labels, re_test_gold_labels, fold, tag2idx, rel2idx, args, device)
-        
-
         # 評価
         sreict_ner = eval_ner_strict(res_df)
         sreict_re = eval_re_strict(res_df)
         sreict_ignore_re = eval_re_strict(res_df, ignore_tags=True)
-
         # 保存
         save_ner_result(sreict_ner, args, fold, tag2idx, "strict")
         save_re_result(sreict_re, args, fold, tag2idx, "strict")
@@ -66,7 +63,6 @@ def main():
 
 
 if __name__ == '__main__':
-
     # 引数
     parser = argparse.ArgumentParser()
     parser.add_argument('--bert_path', type=str, default='/Users/shibata/Documents/BERT_v2/UTH_BERT_BASE_512_MC_BPE_WWM_V25000_352K')

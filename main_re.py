@@ -29,7 +29,7 @@ def main():
         # トーカナイザー
         bert_tokenizer = load_tokenizer(args)
         # 検証
-        X_train, X_val = train_val_split_doc(X_train)
+        X_train, X_val = train_val_split_doc(X_train, args)
         # ベクトル
         tag2idx, rel2idx = make_idx(pd.concat([X_train, X_val, X_test]), args)
         # 訓練ベクトルを作成
