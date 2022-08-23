@@ -4,16 +4,22 @@
 
 - [x] 前処理用コードの修正
 - [ ] 実験用コードの修正
-- [ ] 実験のテスト (50エポック)
-- [ ] 本番の実験
+- [ ] 実験用コードのテスト
+- [ ] 論文用の学習データの決定
+- [ ] 論文用の実験
+- [ ] READMEの修正
 
 ## Setpu
+
+BERTs and dataset can be downloaded from the following.
 
 [UTH-BERT](https://ai-health.m.u-tokyo.ac.jp/home/research/uth-bert)
 
 [NICT-BERT](https://alaginrc.nict.go.jp/nict-bert/index.html)
 
-### Requirements
+[iCorpus](https://ai-health.m.u-tokyo.ac.jp/home/research/corpus)
+
+## Requirements
 
 - Python 3.8+
 - pandas 1.2.4
@@ -29,7 +35,7 @@
 bash run_all.sh
 ```
 
-## Results
+## Results (TEST)
 
 ### Joint (Micro-F1)
 
@@ -62,9 +68,7 @@ CC BY-NC-SA 4.0
 - pytorch-crf. Software available from https://pytorch-crf.readthedocs.io/en/stable/.
 - Hiroki Nakayama. seqeval: A python framework for sequence labeling evaluation, 2018. Software available from https://github.com/chakki-works/seqeval.
 
-## Other
 
-The corpus can be available in [here](https://ai-health.m.u-tokyo.ac.jp/home/research/corpus).
 
 ## Citation
 
