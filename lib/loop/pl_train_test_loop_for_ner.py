@@ -4,7 +4,7 @@ import torch
 import torch.utils.data
 import torch.optim as optim
 from torch.nn.utils.rnn import pad_sequence
-from lib.models import BERT_CRF, compute_ner_loss
+from lib.models import BERT_CRF, compute_ner_loss_pipeline
 from lib.util import decode_ner_pipeline, result2df_for_ner
 from tqdm import tqdm
 import transformers
@@ -71,7 +71,7 @@ def train_val_loop_ner(train_vecs, ner_train_labels,
             # 予測
             ner_logits = model(sentence)
             # 損失の計算
-            ner_loss = compute_ner_loss(model, ner_logits, tag)
+            ner_loss = compute_ner_loss_pipeline(model, ner_logits, tag)
             # 誤差伝搬
             ner_loss.backward()
             # 勾配を更新
@@ -111,7 +111,7 @@ def train_val_loop_ner(train_vecs, ner_train_labels,
                 ner_logits = model(sentence)
                 ner_preds.append(ner_logits)
                 # 損失の計算
-                ner_loss = compute_ner_loss(model, ner_logits, tag)
+                ner_loss = compute_ner_loss_pipeline(model, ner_logits, tag)
                 # 合計の損失
                 val_ner_running_loss += ner_loss.item()
 

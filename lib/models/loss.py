@@ -14,6 +14,28 @@ def compute_re_loss(batch_logits, batch_re, device, weights):
         
 
 def compute_ner_loss(model, ner_res, tag):
+    # reduction="mean"=the output will be averaged over batches. 
+    # reduction="mean"はバッチ全体の平均を返す=sum/batch_size
+    return -model.module.crf(ner_res, tag, mask=(tag!=0), reduction="mean") #/ ner_res.shape[1]
+
+
+# バッチ用の損失計算
+def compute_re_loss_pipeline(rel_logits, rel_golds, device, weights):
+    # 損失の計算
+    rel_criterion = torch.nn.CrossEntropyLoss(reduction='none', weight=weights)
+    rel_loss = torch.tensor(0., dtype=torch.float).to(device)
+    # RE
+    # https://github.com/YoumiMa/TablERT
+    for b, rel_logit in enumerate(rel_logits):
+        batch_labels = rel_golds[b]
+        batch_logits = rel_logit 
+        batch_loss = rel_criterion(batch_logits.to(device), batch_labels.unsqueeze(0).to(device))
+        batch_loss_masked = torch.triu(batch_loss, diagonal=1)
+        rel_loss += batch_loss_masked.sum()
+    return rel_loss
+
+
+def compute_ner_loss_pipeline(model, ner_res, tag):
      return -model.module.crf(ner_res, tag, mask=(tag!=0), reduction="mean")
 
 
@@ -40,20 +62,3 @@ def compute_loss(model, ner_logits, ner_golds, rel_logits, rel_golds, device):
                                          mask=(batch_labels.unsqueeze(0)!=0).to(device), 
                                          reduction="mean")
     return rel_loss + entity_loss, entity_loss, rel_loss
-
-
-# バッチ用の損失計算
-def compute_loss_pipeline(rel_logits, rel_golds, device, weights):
-    # 損失の計算
-    rel_criterion = torch.nn.CrossEntropyLoss(reduction='none', weight=weights)
-    rel_loss = torch.tensor(0., dtype=torch.float).to(device)
-    # RE
-    # https://github.com/YoumiMa/TablERT
-    for b, rel_logit in enumerate(rel_logits):
-        batch_labels = rel_golds[b]
-        batch_logits = rel_logit 
-
-        batch_loss = rel_criterion(batch_logits.to(device), batch_labels.unsqueeze(0).to(device))
-        batch_loss_masked = torch.triu(batch_loss, diagonal=1)
-        rel_loss += batch_loss_masked.sum()
-    return rel_loss

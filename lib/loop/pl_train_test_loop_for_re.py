@@ -8,7 +8,7 @@ import torch.utils.data
 import torch.optim as optim
 import torch.nn.functional as F
 from torch.nn.utils.rnn import pad_sequence
-from lib.models import BERT_TF_REL, compute_loss_pipeline
+from lib.models import BERT_TF_REL, compute_re_loss_pipeline
 from lib.util import simple_evaluate_re, result2df_for_re, evaluate_rel_v2
 from tqdm import tqdm
 import transformers
@@ -22,7 +22,7 @@ def batch_processing(model, sentence, tag, batch_re, device, weights):
                           tag[batch].unsqueeze(0).to(device))
         rel_logits.append(rel_logit)
     # 損失の計算
-    rel_loss = compute_loss_pipeline(rel_logits, batch_re, device, weights)
+    rel_loss = compute_re_loss_pipeline(rel_logits, batch_re, device, weights)
     return rel_logits, rel_loss
 
 
