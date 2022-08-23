@@ -1,8 +1,16 @@
 # MEDINFO
 
+## To Do
+
+- [x] 前処理用コードの修正
+- [ ] 実験用コードの修正
+- [ ] 実験のテスト (50エポック)
+- [ ] 本番の実験
+
 ## Setpu
 
 [UTH-BERT](https://ai-health.m.u-tokyo.ac.jp/home/research/uth-bert)
+
 [NICT-BERT](https://alaginrc.nict.go.jp/nict-bert/index.html)
 
 ### Requirements
@@ -18,12 +26,32 @@
 ## Run
 
 ```
-bash run_joint.sh
+bash run_all.sh
 ```
 
-```
-bash run_pipeline.sh
-```
+## Results
+
+### Joint (Micro-F1)
+
+| Fold | NER (UTH) |RE (UTH)| NER (NICT) |RE (NICT)|
+|:---|---:|---:|---:|---:|
+|1 |0.YYY|0.YYY|0.XXX|0.XXX|
+|2 |0.YYY|0.YYY|0.XXX|0.XXX|
+|3 |0.YYY|0.YYY|0.XXX|0.XXX|
+|4 |0.YYY|0.YYY|0.XXX|0.XXX|
+|5 |0.YYY|0.YYY|0.XXX|0.XXX|
+|Avg. |0.YYY|0.YYY|0.XXX|0.XXX|
+
+### Pipeline (Micro-F1)
+
+| Fold | NER (UTH) |RE (UTH)| NER (NICT) |RE (NICT)|
+|:---|---:|---:|---:|---:|
+|1 |0.YYY|0.YYY|0.XXX|0.XXX|
+|2 |0.YYY|0.YYY|0.XXX|0.XXX|
+|3 |0.YYY|0.YYY|0.XXX|0.XXX|
+|4 |0.YYY|0.YYY|0.XXX|0.XXX|
+|5 |0.YYY|0.YYY|0.XXX|0.XXX|
+|Avg. |0.YYY|0.YYY|0.XXX|0.XXX|
 
 # License
 CC BY-NC-SA 4.0
