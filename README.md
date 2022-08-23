@@ -1,4 +1,4 @@
-# MEDINFO
+# MEDINFO2023
 
 ## To Do
 
@@ -12,12 +12,9 @@
 ## Setpu
 
 BERTs and dataset can be downloaded from the following.
-
-[UTH-BERT](https://ai-health.m.u-tokyo.ac.jp/home/research/uth-bert)
-
-[NICT-BERT](https://alaginrc.nict.go.jp/nict-bert/index.html)
-
-[iCorpus](https://ai-health.m.u-tokyo.ac.jp/home/research/corpus)
+- [UTH-BERT](https://ai-health.m.u-tokyo.ac.jp/home/research/uth-bert)
+- [NICT-BERT](https://alaginrc.nict.go.jp/nict-bert/index.html)
+- [iCorpus](https://ai-health.m.u-tokyo.ac.jp/home/research/corpus)
 
 ## Requirements
 
@@ -30,6 +27,8 @@ BERTs and dataset can be downloaded from the following.
 - seqeval 1.2.2
 
 ## Run
+
+Modify the arguments in the code according to your environment.
 
 ```
 bash run_all.sh
@@ -67,8 +66,6 @@ CC BY-NC-SA 4.0
 - Ma, Y., Hiraoka, T., & Okazaki, N. (2022). Named entity recognition and relation extraction using enhanced table filling by contextualized representations. Journal of Natural Language Processing, 29(1), 187-223.. Software available from https://github.com/YoumiMa/TablERT.
 - pytorch-crf. Software available from https://pytorch-crf.readthedocs.io/en/stable/.
 - Hiroki Nakayama. seqeval: A python framework for sequence labeling evaluation, 2018. Software available from https://github.com/chakki-works/seqeval.
-
-
 
 ## Citation
 
