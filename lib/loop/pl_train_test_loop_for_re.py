@@ -40,7 +40,8 @@ def train_val_loop_re(train_vecs, ner_train_labels, re_train_gold_labels,
                             {'params': model.rel_classifier.parameters(), 'lr': 1e-3, 'weight_decay': 0.01}],
                             eps=1e-03)
     # Total number of training steps is [number of batches] x [number of epochs]. 
-    warmup_steps = int(args.max_epoch * len(train_vecs) * 0.1 / args.batch_size)
+    #warmup_steps = int(args.max_epoch * len(train_vecs) * 0.1 / args.batch_size)
+    warmup_steps = 0
     scheduler = transformers.get_linear_schedule_with_warmup(optimizer, 
                                                              num_warmup_steps=warmup_steps, 
                                                              num_training_steps=(len(train_vecs)/args.batch_size)*args.max_epoch)
@@ -98,7 +99,7 @@ def train_val_loop_re(train_vecs, ner_train_labels, re_train_gold_labels,
             re_running_loss += rel_loss.item()
         logger.info("訓練")
         logger.info("{0}エポック目のREの損失値: {1}\n".format(epoch, re_running_loss))
-        
+
         # 検証
         re_preds = []
         with torch.inference_mode():

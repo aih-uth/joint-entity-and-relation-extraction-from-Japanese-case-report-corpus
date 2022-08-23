@@ -4,7 +4,7 @@ import torch
 import torch.utils.data
 import torch.optim as optim
 from torch.nn.utils.rnn import pad_sequence
-from lib.models import BERT_CRF, compute_ner_loss_pipeline
+from lib.models import BERT_CRF, compute_ner_loss
 from lib.util import decode_ner_pipeline, result2df_for_ner
 from tqdm import tqdm
 import transformers
@@ -25,8 +25,8 @@ def train_val_loop_ner(train_vecs, ner_train_labels,
                             {'params': model.crf.parameters(), 'lr': 1e-3, 'weight_decay': 0.01}],
                             )
     # Total number of training steps is [number of batches] x [number of epochs]. 
-    warmup_steps = int(args.max_epoch * len(train_vecs) * 0.1 / args.batch_size)
-    # warmup_steps = 0
+    # warmup_steps = int(args.max_epoch * len(train_vecs) * 0.1 / args.batch_size)
+    warmup_steps = 0
     scheduler = transformers.get_linear_schedule_with_warmup(optimizer, 
                                                              num_warmup_steps=warmup_steps, 
                                                              num_training_steps=(len(train_vecs)/args.batch_size)*args.max_epoch)
@@ -68,7 +68,7 @@ def train_val_loop_ner(train_vecs, ner_train_labels,
             # 予測
             ner_logits = model(sentence)
             # 損失の計算
-            ner_loss = compute_ner_loss_pipeline(model, ner_logits, tag)
+            ner_loss = compute_ner_loss(model, ner_logits, tag)
             # 誤差伝搬
             ner_loss.backward()
             # 勾配を更新
@@ -107,7 +107,7 @@ def train_val_loop_ner(train_vecs, ner_train_labels,
                 ner_logits = model(sentence)
                 ner_preds.append(ner_logits)
                 # 損失の計算
-                ner_loss = compute_ner_loss_pipeline(model, ner_logits, tag)
+                ner_loss = compute_ner_loss(model, ner_logits, tag)
                 # 合計の損失
                 val_ner_running_loss += ner_loss.item()
 

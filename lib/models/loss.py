@@ -35,8 +35,8 @@ def compute_re_loss_pipeline(rel_logits, rel_golds, device, weights):
     return rel_loss
 
 
-def compute_ner_loss_pipeline(model, ner_res, tag):
-     return -model.module.crf(ner_res, tag, mask=(tag!=0), reduction="mean")
+#def compute_ner_loss_pipeline(model, ner_res, tag):
+     #return -model.module.crf(ner_res, tag, mask=(tag!=0), reduction="mean")
 
 
 # バッチ用の損失計算

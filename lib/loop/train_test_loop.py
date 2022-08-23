@@ -50,7 +50,8 @@ def train_val_loop(train_vecs, ner_train_labels, re_train_gold_labels,
                             eps=1e-03
                             )
     # Total number of training steps is [number of batches] x [number of epochs]. 
-    warmup_steps = int(args.max_epoch * len(train_vecs) * 0.1 / args.batch_size)
+    # warmup_steps = int(args.max_epoch * len(train_vecs) * 0.1 / args.batch_size)
+    warmup_steps = 0
     scheduler = transformers.get_linear_schedule_with_warmup(optimizer, 
                                                              num_warmup_steps=warmup_steps, 
                                                              num_training_steps=(len(train_vecs)/args.batch_size)*args.max_epoch)
