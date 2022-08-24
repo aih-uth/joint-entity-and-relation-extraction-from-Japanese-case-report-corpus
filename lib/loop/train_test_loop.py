@@ -13,6 +13,7 @@ from lib.util import create_df, create_output_df, evaluate_rel, evaluate_ner, si
 from tqdm import tqdm
 import transformers
 from lib.util import eval_ner_strict, decode_ner_pipeline, result2df_for_ner, get_weight
+from lib.util import eval_re_strict, eval_ner_strict
 
 
 def batch_processing(model, sentence, tag, batch_re, device, train_is, hyper):
@@ -148,11 +149,24 @@ def train_val_loop(train_vecs, ner_train_labels, re_train_gold_labels,
         res_df = result2df_for_ner(X_val, ner_preds_decode)
         sreict_ner = eval_ner_strict(res_df)
         ner_val_F = sreict_ner["micro avg"]["f1"] 
+
         # 評価（RE: 簡易）
-        rel_res = simple_evaluate_re(re_val_gold_labels, re_preds, rel2idx)
-        rel_val_f1 = rel_res["micro avg"]["f1-score"]
-        # 平均値
-        val_F = 0.5 * ner_val_F + 0.5 * rel_val_f1
+        if args.re_val_eval == "soft":
+            rel_res = simple_evaluate_re(re_val_gold_labels, re_preds, rel2idx)
+            rel_val_f1 = rel_res["micro avg"]["f1-score"]
+            # 平均値
+            val_F = 0.5 * ner_val_F + 0.5 * rel_val_f1
+        # 正式
+        elif args.re_val_eval == "strict":
+            res_df = result2df(X_val, ner_preds, re_preds, rel2idx, model, tag2idx)
+            strict_re = eval_re_strict(res_df)
+            # strict_ignore_re = eval_re_strict(res_df, ignore_tags=True)
+            rel_val_f1 = strict_re["micro avg"]["f1"]
+            val_F = 0.5 * ner_val_F + 0.5 * rel_val_f1
+        else:
+            raise ValueError("検証データでの関係の評価方法に誤りがあります")
+
+
         # 保存
         logger.info("検証")
         logger.info("{0}エポック目のNERの損失値: {1}".format(epoch, val_ner_running_loss))

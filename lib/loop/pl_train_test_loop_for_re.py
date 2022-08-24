@@ -9,7 +9,7 @@ import torch.optim as optim
 import torch.nn.functional as F
 from torch.nn.utils.rnn import pad_sequence
 from lib.models import BERT_TF_REL, compute_re_loss_pipeline, compute_re_loss
-from lib.util import simple_evaluate_re, result2df_for_re, evaluate_rel_v2, get_weight
+from lib.util import simple_evaluate_re, result2df_for_re, evaluate_rel_v2, get_weight, eval_re_strict
 from tqdm import tqdm
 import transformers
 
@@ -137,11 +137,17 @@ def train_val_loop_re(train_vecs, ner_train_labels, re_train_gold_labels,
                 # 合計の損失
                 val_re_running_loss += rel_loss.item()
 
-        rel_res = simple_evaluate_re(re_val_gold_labels, re_preds, rel2idx)
+        if args.re_val_eval == "soft":
+            rel_res = simple_evaluate_re(re_val_gold_labels, re_preds, rel2idx)
+            val_F = rel_res["micro avg"]["f1-score"]
+        elif args.re_val_eval == "strict":
+            res_df = result2df_for_re(X_val, re_preds, rel2idx, tag2idx)
+            strict_re = eval_re_strict(res_df)
+            # strict_ignore_re = eval_re_strict(res_df, ignore_tags=True)
+            val_F = strict_re["micro avg"]["f1"]
+        else:
+            raise ValueError("検証データでの関係の評価方法に誤りがあります")
 
-
-        # 平均値
-        val_F = rel_res["micro avg"]["f1-score"]
         # 保存
         logger.info("検証")
         logger.info("{0}エポック目のREの損失値: {1}".format(epoch, val_re_running_loss))

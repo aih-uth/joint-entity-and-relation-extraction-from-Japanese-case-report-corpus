@@ -74,6 +74,7 @@ if __name__ == '__main__':
     parser.add_argument('--idx_flag', type=str, default="F")
     parser.add_argument('--re_weight', type=int, default=1)
     parser.add_argument('--seed', type=int, default=1478754)
+    parser.add_argument('--re_val_eval', type=str, default="soft")
     args = parser.parse_args()
 
     if torch.cuda.is_available():
