@@ -38,25 +38,25 @@ bash run_all.sh
 
 ### Joint (Micro-F1)
 
-| Fold | NER (UTH) |RE (UTH)| NER (NICT) |RE (NICT)|
-|:---|---:|---:|---:|---:|
-|1 |0.YYY|0.YYY|0.XXX|0.XXX|
-|2 |0.YYY|0.YYY|0.XXX|0.XXX|
-|3 |0.YYY|0.YYY|0.XXX|0.XXX|
-|4 |0.YYY|0.YYY|0.XXX|0.XXX|
-|5 |0.YYY|0.YYY|0.XXX|0.XXX|
-|Avg. |0.YYY|0.YYY|0.XXX|0.XXX|
+| Fold | NER (UTH) |RE (UTH: Soft)| RE (UTH: Strict)| NER (NICT) |RE (NICT: Soft)|RE (NICT: Strict)|
+|:---|---:|---:|---:|---:|---:|---:|
+|1 |0.903|0.792|0.750|0.XXX|0.XXX|0.XXX|
+|2 |0.914|0.800|0.766|0.XXX|0.XXX|0.XXX|
+|3 |0.910|0.803|0.766|0.XXX|0.XXX|0.XXX|
+|4 |0.914|0.803|0.762|0.XXX|0.XXX|0.XXX|
+|5 |0.907|0.796|0.756|0.XXX|0.XXX|0.XXX|
+|Avg. |0.910|0.799|0.760|0.XXX|0.XXX|0.XXX|
 
 ### Pipeline (Micro-F1)
 
-| Fold | NER (UTH) |RE (UTH)| NER (NICT) |RE (NICT)|
-|:---|---:|---:|---:|---:|
-|1 |0.YYY|0.YYY|0.XXX|0.XXX|
-|2 |0.YYY|0.YYY|0.XXX|0.XXX|
-|3 |0.YYY|0.YYY|0.XXX|0.XXX|
-|4 |0.YYY|0.YYY|0.XXX|0.XXX|
-|5 |0.YYY|0.YYY|0.XXX|0.XXX|
-|Avg. |0.YYY|0.YYY|0.XXX|0.XXX|
+| Fold | NER (UTH) |RE (UTH: Soft)| RE (UTH: Strict)| NER (NICT) |RE (NICT: Soft)|RE (NICT: Strict)|
+|:---|---:|---:|---:|---:|---:|---:|
+|1 |0.916|0.799|0.762|0.XXX|0.XXX|0.XXX|
+|2 |0.920|0.803|0.771|0.XXX|0.XXX|0.XXX|
+|3 |0.920|0.802|0.770|0.XXX|0.XXX|0.XXX|
+|4 |0.928|0.808|0.771|0.XXX|0.XXX|0.XXX|
+|5 |0.926|0.810|0.775|0.XXX|0.XXX|0.XXX|
+|Avg. |0.922|0.804|0.769|0.XXX|0.XXX|0.XXX|
 
 # License
 CC BY-NC-SA 4.0
