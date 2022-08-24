@@ -52,12 +52,12 @@ def main():
         res_df = test_loop_re(X_test, test_vecs, ner_test_labels, re_test_gold_labels, 
                                        fold, tag2idx, rel2idx, args, device)
 
-        sreict_re = eval_re_strict(res_df)
-        sreict_ignore_re = eval_re_strict(res_df, ignore_tags=True)
+        strict_re = eval_re_strict(res_df)
+        strict_ignore_re = eval_re_strict(res_df, ignore_tags=True)
 
         # 保存
-        save_re_result(sreict_re, args, fold, tag2idx, "strict")
-        save_re_result(sreict_ignore_re, args, fold, tag2idx, "strict_ignore_tags")
+        save_re_result(strict_re, args, fold, tag2idx, "strict")
+        save_re_result(strict_ignore_re, args, fold, tag2idx, "strict_ignore_tags")
         save_csv_pipeline(res_df, args, fold, "RE")
 
 

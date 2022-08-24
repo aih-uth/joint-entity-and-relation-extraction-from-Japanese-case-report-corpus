@@ -34,9 +34,13 @@ Modify the arguments in the code according to your environment.
 bash run_all.sh
 ```
 
-## Results (TEST)
+## Results (Micro-F1)
 
-### Joint (Micro-F1)
+### Joint
+
+Strict: 2つの固有表現が完全に正しく抽出できており、かつ関係が正しい場合に正解
+
+Soft: 2つの固有表現のSPANが正しく抽出できており（タグは無視）、かつ関係が正しい場合に正解
 
 | Fold | NER (UTH) |RE (UTH: Soft)| RE (UTH: Strict)| NER (NICT) |RE (NICT: Soft)|RE (NICT: Strict)|
 |:---|---:|---:|---:|---:|---:|---:|
@@ -47,7 +51,7 @@ bash run_all.sh
 |5 |0.907|0.796|0.756|0.XXX|0.XXX|0.XXX|
 |Avg. |0.910|0.799|0.760|0.XXX|0.XXX|0.XXX|
 
-### Pipeline (Micro-F1)
+### Pipeline
 
 | Fold | NER (UTH) |RE (UTH: Soft)| RE (UTH: Strict)| NER (NICT) |RE (NICT: Soft)|RE (NICT: Strict)|
 |:---|---:|---:|---:|---:|---:|---:|

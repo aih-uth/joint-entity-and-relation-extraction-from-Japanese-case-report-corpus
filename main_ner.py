@@ -46,11 +46,11 @@ def main():
         # テスト
         res_df = test_loop_ner(X_test, test_vecs, ner_test_labels, fold, tag2idx, args, device)
         # 評価
-        sreict_ner = eval_ner_strict(res_df)
-        soft_ner = eval_ner_soft(res_df)
+        strict_ner = eval_ner_strict(res_df)
+        #soft_ner = eval_ner_soft(res_df)
         # 保存
-        save_ner_result(sreict_ner, args, fold, tag2idx, "strict")
-        save_ner_result(soft_ner, args, fold, tag2idx, "soft")
+        save_ner_result(strict_ner, args, fold, tag2idx, "strict")
+        #save_ner_result(soft_ner, args, fold, tag2idx, "soft")
         save_csv_pipeline(res_df, args, fold, "NER")
 
 
