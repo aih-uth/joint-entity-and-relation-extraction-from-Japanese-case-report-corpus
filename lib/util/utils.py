@@ -643,3 +643,4 @@ def get_weight(rel2idx, device, args):
                 weights[v] = 1
         weights = weights.to(device)
         return weights
+

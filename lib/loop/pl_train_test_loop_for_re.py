@@ -59,7 +59,7 @@ def train_val_loop_re(train_vecs, ner_train_labels, re_train_gold_labels,
     for epoch in range(args.max_epoch):
         # epochごとに訓練データをシャッフルする
         train_indice = list(range(len(train_vecs)))
-        # random.shuffle(train_indice)
+        random.shuffle(train_indice)
         # モデルを学習モードに
         model.train()
         # 損失　
