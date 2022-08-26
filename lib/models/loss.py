@@ -15,8 +15,8 @@ def compute_re_loss(batch_logits, batch_re, device, weights):
 
 def compute_ner_loss(model, ner_res, tag):
     # reduction="mean"=the output will be averaged over batches. 
-    # reduction="mean"はバッチ全体の平均を返す=sum/batch_size
-    return -model.module.crf(ner_res, tag, mask=(tag!=0), reduction="mean") #/ ner_res.shape[1]
+    # sum or mean
+    return -model.module.crf(ner_res, tag, mask=(tag!=0), reduction="sum")
 
 
 # バッチ用の損失計算

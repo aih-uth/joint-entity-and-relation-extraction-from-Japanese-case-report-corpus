@@ -33,15 +33,19 @@ def train_val_loop_re(train_vecs, ner_train_labels, re_train_gold_labels,
     best_val_F =  -1e5
     # モデルを定義
     model = BERT_TF_REL(args, tag2idx, rel2idx, device).to(device)
+    
     # 最適化関数
-    optimizer = optim.AdamW([
-                            {'params': model.bert_model.parameters(), 'lr': 3e-5, 'weight_decay': 0.01},
-                            {'params': model.label_embedding.parameters(), 'lr': 1e-3, 'weight_decay': 0.01},
-                            {'params': model.rel_classifier.parameters(), 'lr': 1e-3, 'weight_decay': 0.01}],
-                            eps=1e-03)
+    #optimizer = optim.AdamW([
+                            #{'params': model.bert_model.parameters(), 'lr': 2e-5, 'weight_decay': 0.01},
+                            #{'params': model.label_embedding.parameters(), 'lr': 1e-3, 'weight_decay': 0.01},
+                            #{'params': model.rel_classifier.parameters(), 'lr': 1e-3, 'weight_decay': 0.01}],
+                            #eps=1e-03)
+
+    optimizer = optim.AdamW(model.parameters(), lr=2e-5)
+
     # Total number of training steps is [number of batches] x [number of epochs]. 
-    #warmup_steps = int(args.max_epoch * len(train_vecs) * 0.1 / args.batch_size)
-    warmup_steps = 0
+    warmup_steps = int(args.max_epoch * len(train_vecs) * 0.1 / args.batch_size)
+    #warmup_steps = 0
     scheduler = transformers.get_linear_schedule_with_warmup(optimizer, 
                                                              num_warmup_steps=warmup_steps, 
                                                              num_training_steps=(len(train_vecs)/args.batch_size)*args.max_epoch)
@@ -49,7 +53,7 @@ def train_val_loop_re(train_vecs, ner_train_labels, re_train_gold_labels,
     # 損失の重み
     weights = get_weight(rel2idx, device, args)
 
-    loss_dct = {"epoch": [], "train_RE_loss": [], "val_RE_loss": []}
+    loss_dct = {"epoch": [], "train_RE_loss": [], "val_RE_loss": [], "val_F": []}
 
     # 念の為; BERTの全レイヤーの勾配を更新
     for _, param in model.named_parameters():
@@ -158,6 +162,7 @@ def train_val_loop_re(train_vecs, ner_train_labels, re_train_gold_labels,
         loss_dct["epoch"].append(epoch)
         loss_dct["train_RE_loss"].append(re_running_loss)
         loss_dct["val_RE_loss"].append(val_re_running_loss)
+        loss_dct["val_F"].append(val_F)
 
         # Early Stopping
         if val_F > best_val_F:
@@ -168,7 +173,7 @@ def train_val_loop_re(train_vecs, ner_train_labels, re_train_gold_labels,
         else:
             logger.info("{0}エポック目は現状維持\n".format(epoch))
 
-    with open('./results/{0}/{1}/loss_{2}.json'.format(args.task, args.bert_type, fold), 'w') as f:
+    with open('./results/{0}/{1}/loss_RE_{2}.json'.format(args.task, args.bert_type, fold), 'w') as f:
         json.dump(loss_dct, f, indent=4)
 
 

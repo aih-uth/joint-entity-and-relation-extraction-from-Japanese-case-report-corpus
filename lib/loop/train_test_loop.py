@@ -41,18 +41,21 @@ def train_val_loop(train_vecs, ner_train_labels, re_train_gold_labels,
     best_val_F =  -1e5
     # モデルを定義
     model = BERT_TF(args, tag2idx, rel2idx, device).to(device)
+
     # 最適化関数
-    optimizer = optim.AdamW([
-                            {'params': model.bert_model.parameters(), 'lr': 3e-5, 'weight_decay': 0.01},
-                            {'params': model.linear.parameters(), 'lr': 1e-3, 'weight_decay': 0.01},
-                            {'params': model.crf.parameters(), 'lr': 1e-3, 'weight_decay': 0.01},
-                            {'params': model.label_embedding.parameters(), 'lr': 1e-3, 'weight_decay': 0.01},
-                            {'params': model.rel_classifier.parameters(), 'lr': 1e-3, 'weight_decay': 0.01}],
-                            eps=1e-03
-                            )
+    #optimizer = optim.AdamW([
+                            #{'params': model.bert_model.parameters(), 'lr': 3e-5, 'weight_decay': 0.01},
+                            #{'params': model.linear.parameters(), 'lr': 1e-3, 'weight_decay': 0.01},
+                            #{'params': model.crf.parameters(), 'lr': 1e-3, 'weight_decay': 0.01},
+                            #{'params': model.label_embedding.parameters(), 'lr': 1e-3, 'weight_decay': 0.01},
+                            #{'params': model.rel_classifier.parameters(), 'lr': 1e-3, 'weight_decay': 0.01}],
+                            #eps=1e-03
+                            #)
+    optimizer = optim.AdamW(model.parameters(), lr=2e-5)
+    
     # Total number of training steps is [number of batches] x [number of epochs]. 
-    # warmup_steps = int(args.max_epoch * len(train_vecs) * 0.1 / args.batch_size)
-    warmup_steps = 0
+    warmup_steps = int(args.max_epoch * len(train_vecs) * 0.1 / args.batch_size)
+    #warmup_steps = 0
     scheduler = transformers.get_linear_schedule_with_warmup(optimizer, 
                                                              num_warmup_steps=warmup_steps, 
                                                              num_training_steps=(len(train_vecs)/args.batch_size)*args.max_epoch)

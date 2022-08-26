@@ -18,15 +18,19 @@ def train_val_loop_ner(train_vecs, ner_train_labels,
     best_val_F =  -1e5
     # モデルを定義
     model = BERT_CRF(args, tag2idx).to(device)
+    
     # 最適化関数
-    optimizer = optim.AdamW([
-                            {'params': model.bert_model.parameters(), 'lr': 3e-5, 'weight_decay': 0.01},
-                            {'params': model.linear.parameters(), 'lr': 1e-3, 'weight_decay': 0.01},
-                            {'params': model.crf.parameters(), 'lr': 1e-3, 'weight_decay': 0.01}],
-                            )
+    #optimizer = optim.AdamW([
+                            #{'params': model.bert_model.parameters(), 'lr': 3e-5, 'weight_decay': 0.01},
+                            #{'params': model.linear.parameters(), 'lr': 1e-3, 'weight_decay': 0.01},
+                            #{'params': model.crf.parameters(), 'lr': 1e-3, 'weight_decay': 0.01}],eps=1e-03
+                            #)
+    
+    optimizer = optim.AdamW(model.parameters(), lr=2e-5)
+
     # Total number of training steps is [number of batches] x [number of epochs]. 
-    # warmup_steps = int(args.max_epoch * len(train_vecs) * 0.1 / args.batch_size)
-    warmup_steps = 0
+    warmup_steps = int(args.max_epoch * len(train_vecs) * 0.1 / args.batch_size)
+    #warmup_steps = 0
     scheduler = transformers.get_linear_schedule_with_warmup(optimizer, 
                                                              num_warmup_steps=warmup_steps, 
                                                              num_training_steps=(len(train_vecs)/args.batch_size)*args.max_epoch)
@@ -35,7 +39,7 @@ def train_val_loop_ner(train_vecs, ner_train_labels,
         param.requires_grad = True
     model = torch.nn.DataParallel(model)
 
-    loss_dct = {"epoch": [], "train_NER_loss": [], "val_NER_loss": []}
+    loss_dct = {"epoch": [], "train_NER_loss": [], "val_NER_loss": [], "val_F": []}
     
     # Loop
     for epoch in range(args.max_epoch):
@@ -125,6 +129,7 @@ def train_val_loop_ner(train_vecs, ner_train_labels,
         loss_dct["epoch"].append(epoch)
         loss_dct["train_NER_loss"].append(ner_running_loss)
         loss_dct["val_NER_loss"].append(val_ner_running_loss)
+        loss_dct["val_F"].append(val_F)
 
         # Early Stopping
         if val_F > best_val_F:
@@ -135,7 +140,7 @@ def train_val_loop_ner(train_vecs, ner_train_labels,
         else:
             logger.info("{0}エポック目は現状維持\n".format(epoch))
 
-    with open('./results/{0}/{1}/loss_{2}.json'.format(args.task, args.bert_type, fold), 'w') as f:
+    with open('./results/{0}/{1}/loss_NER_{2}.json'.format(args.task, args.bert_type, fold), 'w') as f:
         json.dump(loss_dct, f, indent=4)
 
             

@@ -60,8 +60,6 @@ def main():
         save_re_result(strict_ignore_re, args, fold, tag2idx, "strict_ignore_tags")
         save_csv_pipeline(res_df, args, fold, "RE")
 
-        break
-
 
 if __name__ == '__main__':
     # 引数
