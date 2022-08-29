@@ -52,7 +52,7 @@ def train_val_loop(train_vecs, ner_train_labels, re_train_gold_labels,
                             #eps=1e-03
                             #)
     optimizer = optim.AdamW(model.parameters(), lr=2e-5)
-    
+
     # Total number of training steps is [number of batches] x [number of epochs]. 
     warmup_steps = int(args.max_epoch * len(train_vecs) * 0.1 / args.batch_size)
     #warmup_steps = 0
@@ -162,6 +162,7 @@ def train_val_loop(train_vecs, ner_train_labels, re_train_gold_labels,
         # 正式
         elif args.re_val_eval == "strict":
             res_df = result2df(X_val, ner_preds, re_preds, rel2idx, model, tag2idx)
+            # Jointでは関係に合わせて固有表現も最適化したいのでこっち
             strict_re = eval_re_strict(res_df)
             # strict_ignore_re = eval_re_strict(res_df, ignore_tags=True)
             rel_val_f1 = strict_re["micro avg"]["f1"]

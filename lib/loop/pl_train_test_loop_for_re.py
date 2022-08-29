@@ -146,9 +146,10 @@ def train_val_loop_re(train_vecs, ner_train_labels, re_train_gold_labels,
             val_F = rel_res["micro avg"]["f1-score"]
         elif args.re_val_eval == "strict":
             res_df = result2df_for_re(X_val, re_preds, rel2idx, tag2idx)
-            strict_re = eval_re_strict(res_df)
-            # strict_ignore_re = eval_re_strict(res_df, ignore_tags=True)
-            val_F = strict_re["micro avg"]["f1"]
+            #strict_re = eval_re_strict(res_df)
+            # Pipelineでは固有表現はもう最適化できないので、REだけでよろしい?
+            strict_ignore_re = eval_re_strict(res_df, ignore_tags=True)
+            val_F = strict_ignore_re["micro avg"]["f1"]
         else:
             raise ValueError("検証データでの関係の評価方法に誤りがあります")
 
