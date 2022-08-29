@@ -33,7 +33,7 @@ def train_val_loop_re(train_vecs, ner_train_labels, re_train_gold_labels,
     best_val_F =  -1e5
     # モデルを定義
     model = BERT_TF_REL(args, tag2idx, rel2idx, device).to(device)
-    
+
     # 最適化関数
     #optimizer = optim.AdamW([
                             #{'params': model.bert_model.parameters(), 'lr': 2e-5, 'weight_decay': 0.01},
@@ -156,7 +156,7 @@ def train_val_loop_re(train_vecs, ner_train_labels, re_train_gold_labels,
         logger.info("検証")
         logger.info("{0}エポック目のREの損失値: {1}".format(epoch, val_re_running_loss))
 
-        logger.info("{0}エポック目のREのMicro Avg: {1}".format(epoch, rel_res["micro avg"]["f1-score"]))
+        #logger.info("{0}エポック目のREのMicro Avg: {1}".format(epoch, rel_res["micro avg"]["f1-score"]))
         logger.info("{0}エポック目の平均F1: {1}\n".format(epoch, val_F))
 
         loss_dct["epoch"].append(epoch)
