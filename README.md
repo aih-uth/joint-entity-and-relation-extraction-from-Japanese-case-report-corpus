@@ -1,4 +1,4 @@
-# MEDINFO2023
+# Towards structuring clinical texts: joint entity and relation extraction from Japanese case report corpus
 
 ## Setpu
 
@@ -23,7 +23,7 @@ An NVIDIA RTX A6000 (48GB) was used for training the models.
 Modify the arguments in the code according to your environment.
 
 ```
-bash run_all.sh
+bash run_joint.sh
 ```
 
 ## Results (Micro-F1)
