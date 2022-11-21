@@ -29,12 +29,14 @@ class NpEncoder(json.JSONEncoder):
 
 def load_data_cv(args):
     df = pd.read_csv(args.data_path)
-    list_df = []
-    for ids in df["unique_no"].unique():
-        tmp_df = df[df["unique_no"]==ids]
-        if tmp_df.shape[0] <= args.max_words:
-            list_df.append(tmp_df)
-    return pd.concat(list_df)   
+    #list_df = []
+    #for ids in df["unique_no"].unique():
+        #tmp_df = df[df["unique_no"]==ids]
+        #if tmp_df.shape[0] <= args.max_words:
+            #list_df.append(tmp_df)
+    #return pd.concat(list_df)  
+    all_unique_nos = json.load(open('./data/index/all_unique_nos.json', 'r'))["unique_no"]
+    return df.query('unique_no in @all_unique_nos')
 
 
 def load_tokenizer(args):

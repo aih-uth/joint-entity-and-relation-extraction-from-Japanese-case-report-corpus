@@ -56,8 +56,8 @@ def main():
         strict_ignore_re = eval_re_strict(res_df, ignore_tags=True)
 
         # 保存
-        save_re_result(strict_re, args, fold, tag2idx, "strict")
-        save_re_result(strict_ignore_re, args, fold, tag2idx, "strict_ignore_tags")
+        save_re_result(strict_re, args, fold, rel2idx, "strict")
+        save_re_result(strict_ignore_re, args, fold, rel2idx, "strict_ignore_tags")
         save_csv_pipeline(res_df, args, fold, "RE")
 
 

@@ -27,10 +27,17 @@ def main():
         # 取り出す
         X_train = df.query('name in @train_index')
         X_test = df.query('name in @test_index')
+
+        logger.info("train: {0},  test: {1}".format(len(set(X_train["name"])), len(set(X_test["name"]))))
+
+
         # トーカナイザー
         bert_tokenizer = load_tokenizer(args)
         # 検証
         X_train, X_val = train_val_split_doc(X_train, args)
+
+        logger.info("train: {0},  val: {1},  test: {2}".format(len(set(X_train["unique_no"])), len(set(X_val["unique_no"])), len(set(X_test["unique_no"]))))
+
         # ベクトル
         tag2idx, rel2idx = make_idx(pd.concat([X_train, X_val, X_test]), args)
         # 訓練ベクトルを作成
@@ -39,7 +46,9 @@ def main():
         val_vecs, ner_val_labels = make_test_vecs(X_val, bert_tokenizer, tag2idx)
         # テスト
         test_vecs, ner_test_labels = make_test_vecs(X_test, bert_tokenizer, tag2idx)
+
         logger.info("train: {0}, val: {1}, test: {2}".format(len(train_vecs), len(val_vecs), len(test_vecs)))
+        
         # 関係ラベルを作成
         re_train_gold_labels = create_re_labels(X_train, rel2idx)
         re_val_gold_labels = create_re_labels(X_val, rel2idx)
@@ -57,8 +66,8 @@ def main():
         strict_ignore_re = eval_re_strict(res_df, ignore_tags=True)
         # 保存
         save_ner_result(strict_ner, args, fold, tag2idx, "strict")
-        save_re_result(strict_re, args, fold, tag2idx, "strict")
-        save_re_result(strict_ignore_re, args, fold, tag2idx, "strict_ignore_tags")
+        save_re_result(strict_re, args, fold, rel2idx, "strict")
+        save_re_result(strict_ignore_re, args, fold, rel2idx, "strict_ignore_tags")
         save_csv(res_df, args, fold)
 
 
