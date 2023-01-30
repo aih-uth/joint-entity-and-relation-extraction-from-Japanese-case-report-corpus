@@ -115,7 +115,8 @@ def train_val_loop(train_vecs, ner_train_labels, re_train_gold_labels,
         logger.info("{0}エポック目のREの損失値: {1}\n".format(epoch, re_running_loss))
         # 検証
         ner_preds, re_preds = [], []
-        with torch.inference_mode():
+        # with torch.inference_mode():
+        with torch.no_grad():
             # 勾配を更新しない
             model.eval()
             # 
