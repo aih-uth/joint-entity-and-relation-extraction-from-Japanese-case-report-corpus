@@ -5,7 +5,7 @@ import torch
 import torch.utils.data
 import torch.nn.functional as F
 import logging
-from lib.util import load_data_cv, load_tokenizer, train_val_split_doc, make_idx, make_train_vecs, make_test_vecs, create_re_labels, save_csv, save_ner_result, save_re_result
+from lib.util import load_data_cv, load_tokenizer, train_val_split_doc, make_idx, make_train_vecs, make_test_vecs, create_re_labels, save_csv, save_ner_result, save_re_result, cut_length
 from lib.loop import train_val_loop, test_loop
 import argparse
 import json
@@ -16,6 +16,7 @@ def main():
     logger.info("----------{0}-JOINTの実験を開始----------".format(args.bert_type))
     # 実験データ
     df = load_data_cv(args)
+    df = cut_length(df, args.max_words)
     # 交差検証用の分割ファイル
     json_open = open('./data/index/train_test_index.json', 'r')
     train_test_indxe_dct = json.load(json_open)
