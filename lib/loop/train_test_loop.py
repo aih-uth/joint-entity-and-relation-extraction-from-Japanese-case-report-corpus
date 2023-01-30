@@ -203,7 +203,8 @@ def train_val_loop(train_vecs, ner_train_labels, re_train_gold_labels,
 def test_loop(X_test, test_vecs, ner_test_labels, re_test_gold_labels, 
               fold, tag2idx, rel2idx, args, device):
     # テスト
-    with torch.inference_mode():
+    # with torch.inference_mode():
+    with torch.no_grad():
         # モデルを定義
         model = BERT_TF(args, tag2idx, rel2idx, device).to(device)
         #検証データでの損失が最良となったベストモデルを読み込む
